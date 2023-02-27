@@ -7,6 +7,8 @@ from torch.nn.utils import prune
 import collections
 from visualization import ShowMatrix
 
+torch.backends.cudnn.benchmark = True
+
 train_dataset = datasets.MNIST(root='data/', train=True, transform=transforms.ToTensor(), download=True)
 test_dataset = datasets.MNIST(root='data/', train=False, transform=transforms.ToTensor(), download=True)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True)
@@ -90,6 +92,25 @@ class SparsityFFNN:
             amount=sparsity_rate,
         )
 
+        print(self.model.fc1.weight_mask)
+    
+    def Prunning_Structured(self, sparsity_rate):
+        parameters_to_prune = (
+            (self.model.fc1, 'weight'),
+            (self.model.fc2, 'weight'),
+            (self.model.fc3, 'weight'),
+            (self.model.fc4, 'weight'),
+        )
+        # apply structured pruning
+        for module, name in parameters_to_prune:
+            prune.ln_structured(
+                module,
+                name=name,
+                n=2,  # prune filters instead of individual weights
+                amount=sparsity_rate,
+                dim=0,  # prune filters along the channels dimension  
+            )
+
     def CheckSparsity(self):
         print(
             "Sparsity in fc1.weight: {:.2f}%".format(
@@ -169,7 +190,7 @@ class SparsityFFNN:
         self.ResetModel()
         self.Train(epoches)
         self.Inference()
-        self.Prunning(prunning_rate)
+        self.Prunning_Structured(prunning_rate)
         self.CheckSparsity()
         self.Inference()
         self.Train(epoches)
@@ -198,7 +219,7 @@ def main():
     sparsity = SparsityFFNN()
     #sparsity.DifferentPrunningRate(15, 0.7)
     sparsity.ShowParameter('80', 'original')
-    sparsity.DifferentPrunningRate(15, 0.8)
+    sparsity.DifferentPrunningRate(15, 0.9)
     sparsity.ShowParameter('80', 'sparse')
     #sparsity.DifferentPrunningRate(15, 0.9)
     #sparsity.DifferentPrunningRate(15, 0.95)
