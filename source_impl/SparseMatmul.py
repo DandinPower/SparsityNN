@@ -166,8 +166,8 @@ def test_1():
     print(C.to_dense(), end='\n\n')
 
 def test_2():
-    A = CSR_Matrix([0, 2, 3], [0, 2, 1], [1, 2, 3], (2, 3))
-    B = CSR_Matrix([0, 1, 2, 3], [0, 1, 0], [4, 5, 6], (3, 2))
+    A = CSR_Matrix([0, 1, 3, 3], [2, 0, 2], [3, 4, 5], (3, 3))
+    B = CSR_Matrix([0, 1, 1, 3], [1, 0, 1], [4, 3, 5], (3, 3))
     C = CsrMM(A, B)
     print(C, end='\n\n')
     print(C.to_dense(), end='\n\n')
@@ -182,11 +182,10 @@ def test_3():
     C = CsrMM(A, B)
     print(C, end='\n\n')
     print(C.to_dense(), end='\n\n')
-
     DenseC = A.to_dense() * B.to_dense()
     print(DenseC)
 
 if __name__ == "__main__":
     #test_1()
-    #test_2()
-    test_3()
+    test_2()
+    #test_3()
